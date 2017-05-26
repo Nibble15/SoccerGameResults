@@ -15,9 +15,13 @@ namespace SoccerStats {
             var fileContents = ReadSoccerResults(fileName);
             fileName = Path.Combine(directory.FullName, "players.json");
             var players = DeserializePlayers(fileName);
-
-            foreach(var player in players) {
-                Console.WriteLine(player.FirstName);
+            var topTenPlayers = GetTopTenPlayers(players);
+            //foreach(var player in players) {
+            //    Console.WriteLine(player.FirstName);
+            //}
+            foreach(var player in topTenPlayers) {
+                Console.WriteLine("Name: " + player.FirstName + 
+                    " " + player.SecondName + " PPG: " + player.PointsPerGame);
             }
         }
         public static string ReadFile(string fileName) {
@@ -74,6 +78,21 @@ namespace SoccerStats {
                players = serializer.Deserialize<List<Player>>(jsonReader);
             }
             return players;
+        }
+
+        public static List<Player> GetTopTenPlayers(List<Player> players) {
+            var topTenPlayers = new List<Player>();
+            players.Sort(new PlayerComparer());
+            //players.Reverse(); - my solution - teachers solution is to * -1 in playercomparer
+            int count = 0;
+            foreach(var player in players) {
+                topTenPlayers.Add(player);
+                count++;
+                if(count == 10) {
+                    break;
+                }
+            }
+            return topTenPlayers;
         }
     }
 }
