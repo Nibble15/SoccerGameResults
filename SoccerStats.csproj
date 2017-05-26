@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameResult.cs" />
+    <Compile Include="NewsSearch.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlayerComparer.cs" />
     <Compile Include="Program.cs" />
@@ -60,6 +61,7 @@
     <None Include="SoccerGameResults.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="topten.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data.txt">
