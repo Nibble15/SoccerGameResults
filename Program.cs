@@ -20,16 +20,17 @@ namespace SoccerStats {
             //fileName = Path.Combine(directory.FullName, "players.json");
             //var players = DeserializePlayers(fileName);
             //var topTenPlayers = GetTopTenPlayers(players);
-            
+
             //foreach(var player in topTenPlayers) {
             //    Console.WriteLine("Name: " + player.FirstName + 
             //        " " + player.SecondName + " PPG: " + player.PointsPerGame);
             //}
-            
+
             //fileName = Path.Combine(directory.FullName, "topten.json");
             //SerializePlayersToFile(topTenPlayers, fileName);
 
-            Console.WriteLine(GetGoogleHomePage());
+            //Console.WriteLine(GetGoogleHomePage());
+            Console.WriteLine(GetNewsForPlayer("Diego Valeri"));
 
         }
         public static string ReadFile(string fileName) {
@@ -117,6 +118,17 @@ namespace SoccerStats {
 
             using (var stream = new MemoryStream(googleHome))
             using(var reader = new StreamReader(stream)) {
+                return reader.ReadToEnd();
+            }
+        }
+
+        public static string GetNewsForPlayer(string playerName) {
+            var webClient = new WebClient();
+            webClient.Headers.Add("Ocp-Apim-Subscription-Key", "716fc6ce9d6845b19532419d8611d7c5");//using header from docs and azure api key
+            byte[] searchResults = webClient.DownloadData(string.Format("https://api.cognitive.microsoft.com/bing/v5.0/news/search?q={0}&mkt=en-us", playerName));
+
+            using (var stream = new MemoryStream(searchResults))
+            using (var reader = new StreamReader(stream)) {
                 return reader.ReadToEnd();
             }
         }
