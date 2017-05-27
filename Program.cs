@@ -10,27 +10,34 @@ using System.Net;
 namespace SoccerStats {
     class Program {
         static void Main(string[] args) {
-            //string currDirectory = Directory.GetCurrentDirectory();
-            //DirectoryInfo directory = new DirectoryInfo(currDirectory);
-            //var fileName = Path.Combine(directory.FullName, "SoccerGameResults.csv");
-            //var fileContents = ReadSoccerResults(fileName);
-            ////foreach(var player in players) {
-            ////    Console.WriteLine(player.FirstName);
-            ////}
-            //fileName = Path.Combine(directory.FullName, "players.json");
-            //var players = DeserializePlayers(fileName);
-            //var topTenPlayers = GetTopTenPlayers(players);
+            string currDirectory = Directory.GetCurrentDirectory();
+            DirectoryInfo directory = new DirectoryInfo(currDirectory);
+            var fileName = Path.Combine(directory.FullName, "SoccerGameResults.csv");
+            var fileContents = ReadSoccerResults(fileName);
+            //foreach(var player in players) {
+            //    Console.WriteLine(player.FirstName);
+            //}
+            fileName = Path.Combine(directory.FullName, "players.json");
+            var players = DeserializePlayers(fileName);
+            var topTenPlayers = GetTopTenPlayers(players);
 
-            //foreach(var player in topTenPlayers) {
-            //    Console.WriteLine("Name: " + player.FirstName + 
+            //foreach (var player in topTenPlayers) {
+            //    Console.WriteLine("Name: " + player.FirstName +
             //        " " + player.SecondName + " PPG: " + player.PointsPerGame);
             //}
 
-            //fileName = Path.Combine(directory.FullName, "topten.json");
-            //SerializePlayersToFile(topTenPlayers, fileName);
+            foreach (var player in topTenPlayers) {
+                List<NewsResult> newsResults = GetNewsForPlayer(string.Format("{0} {1}", player.FirstName, player.SecondName));
+                foreach (var result in newsResults) {
+                    Console.WriteLine(string.Format("Date: {0}, Headline: {1} Summary: {2}\r\n", result.DatePublished, result.Headline, result.Summary));
+                    Console.ReadKey();
+                }
+            }
+                fileName = Path.Combine(directory.FullName, "topten.json");
+            SerializePlayersToFile(topTenPlayers, fileName);
 
-            //Console.WriteLine(GetGoogleHomePage());
-            Console.WriteLine(GetNewsForPlayer("Diego Valeri"));
+            Console.WriteLine(GetGoogleHomePage());
+            
 
         }
         public static string ReadFile(string fileName) {
@@ -122,15 +129,18 @@ namespace SoccerStats {
             }
         }
 
-        public static string GetNewsForPlayer(string playerName) {
+        public static List<NewsResult> GetNewsForPlayer(string playerName) {
+            var results = new List<NewsResult>();
             var webClient = new WebClient();
             webClient.Headers.Add("Ocp-Apim-Subscription-Key", "716fc6ce9d6845b19532419d8611d7c5");//using header from docs and azure api key
             byte[] searchResults = webClient.DownloadData(string.Format("https://api.cognitive.microsoft.com/bing/v5.0/news/search?q={0}&mkt=en-us", playerName));
-
+            var serializer = new JsonSerializer();
             using (var stream = new MemoryStream(searchResults))
-            using (var reader = new StreamReader(stream)) {
-                return reader.ReadToEnd();
+            using (var reader = new StreamReader(stream))
+            using (var jsonReader = new JsonTextReader(reader)) {
+                results = serializer.Deserialize<NewsSearch>(jsonReader).NewsResults;
             }
+            return results;
         }
     }
 }
